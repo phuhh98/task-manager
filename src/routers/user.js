@@ -6,11 +6,12 @@ const { customAlphabet } = require("nanoid");
 const { alphanumeric } = require("nanoid-dictionary");
 const alphanumericRandom = customAlphabet(alphanumeric, 10);
 const FileType = require("file-type"); // check file type
+const sharp = require("sharp"); // use sharp module to image processing, resizing
 const router = new Router();
 
 //set up multer upload image handler
 const uploadImage = multer({
-	// comment the storage section of multer setting to let multer cache file buffer so that we can use to store in mongodb
+	// deprecated because we use mongodb to upload image binary
 	// storage: multer.diskStorage({
 	// 	destination: function (req, file, callback) {
 	// 		callback(null, "images");
@@ -133,7 +134,8 @@ router.post(
 	uploadImage.single("avatar"), //multer middleware handles multipart file data and cache data in req.file
 	//actual request , response handler before error handler being set
 	async (req, res) => {
-		req.user.avatar = req.file.buffer; //set avatar field of current user which is uploading avatar to that binary one.
+		const imageBuffer = await sharp(req.file.buffer).resize({ width: 250, height: 250 }).png().toBuffer();
+		req.user.avatar = imageBuffer; //set avatar field of current user which is uploading avatar to that binary one after processed.
 		await req.user.save();
 		res.status(200).send("File uploaded");
 	},
