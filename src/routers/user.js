@@ -7,6 +7,8 @@ const { alphanumeric } = require("nanoid-dictionary");
 const alphanumericRandom = customAlphabet(alphanumeric, 10);
 const FileType = require("file-type"); // check file type
 const sharp = require("sharp"); // use sharp module to image processing, resizing
+const { sendWelcomeEmail, sendCancelation } = require("../email/account.js");
+
 const router = new Router();
 
 //set up multer upload image handler
@@ -48,6 +50,7 @@ router.post("/users", async (req, res) => {
 	try {
 		const user = new User(req.body);
 		await user.save();
+		sendWelcomeEmail(user.email, user.name);
 		const token = await user.generateAuthToken();
 		return res.status(200).send({ user, token });
 	} catch (err) {
@@ -67,7 +70,7 @@ router.post("/users/login", async (req, res) => {
 	}
 });
 
-//Logout a session and delete an auth token from user
+//Logout a session and ete an auth token delfrom user
 router.post("/users/logout", auth, async (req, res) => {
 	try {
 		//filter out the current token sent from client and remove it from user tokens <<array>>
@@ -120,6 +123,7 @@ router.patch("/users/me", auth, async (req, res) => {
 router.delete("/users/me", auth, async (req, res) => {
 	try {
 		await req.user.remove();
+		sendCancelation(req.user.email, req.user.name);
 		res.status(200).send("User deleted");
 	} catch (err) {
 		res.status(500).send(err);

@@ -1,11 +1,11 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/user.js');
+const jwt = require("jsonwebtoken");
+const User = require("../models/user.js");
 
 const auth = async (req, res, next) => {
 	try {
-		const token = req.header('Authorization').replace('Bearer ', '');
-		const decoded = await jwt.verify(token, process.env.TOKEN_SIGNITURE);
-		const user = await User.findOne({ _id: decoded._id, 'tokens.token': token });
+		const token = req.header("Authorization").replace("Bearer ", "");
+		const decoded = await jwt.verify(token, process.env.JWT_SECRET);
+		const user = await User.findOne({ _id: decoded._id, "tokens.token": token });
 		if (!user) {
 			throw new Error();
 		}
@@ -14,7 +14,7 @@ const auth = async (req, res, next) => {
 		req.user = user;
 		next();
 	} catch {
-		res.status(401).send('Error: Please authentiation!');
+		res.status(401).send("Error: Please authentiation!");
 	}
 };
 
