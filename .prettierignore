@@ -1,6 +1,5 @@
 node_modules/
-config/
-*.env
+.env
 images/
 playground/
 access.log

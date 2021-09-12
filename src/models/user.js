@@ -1,10 +1,10 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
-const Task = require("./task.js");
+const Task = require('./task.js');
 
-const validator = require("validator");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const validator = require('validator');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const userSchema = new Schema(
 	{
@@ -19,7 +19,7 @@ const userSchema = new Schema(
 			default: 0,
 			validate(value) {
 				if (value < 0) {
-					throw new Error("Invalid age");
+					throw new Error('Invalid age');
 				}
 			},
 		},
@@ -31,7 +31,7 @@ const userSchema = new Schema(
 			lowercase: true,
 			validate(value) {
 				if (!validator.isEmail(value)) {
-					throw new Error("Invalid email");
+					throw new Error('Invalid email');
 				}
 			},
 		},
@@ -41,7 +41,7 @@ const userSchema = new Schema(
 			trim: true,
 			minLength: 7,
 			validate(value) {
-				if (value.toLowerCase().includes("password") === false) {
+				if (value.toLowerCase().includes('password') === false) {
 					return true;
 				} else {
 					throw new Error('Password cannot contain "password"');
@@ -66,10 +66,10 @@ const userSchema = new Schema(
 );
 
 //add a virtual prop to userSchema and can be call with user.populate(<<virtual field>>).execPopulate() to get the ref record
-userSchema.virtual("tasks", {
-	ref: "Task",
-	localField: "_id",
-	foreignField: "owner",
+userSchema.virtual('tasks', {
+	ref: 'Task',
+	localField: '_id',
+	foreignField: 'owner',
 });
 
 //adjust .toJSON prop of User model instance to send public data when call res.send(<<User instance>>)
@@ -88,7 +88,9 @@ userSchema.methods.toJSON = function () {
 //add .methods for instance of model
 userSchema.methods.generateAuthToken = async function () {
 	const user = this;
-	const token = await jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_TOKEN_LIFE });
+	const token = await jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET, {
+		expiresIn: process.env.JWT_TOKEN_LIFE,
+	});
 
 	user.tokens.push({ token });
 	await user.save();
@@ -100,32 +102,32 @@ userSchema.methods.generateAuthToken = async function () {
 userSchema.statics.findByCredentials = async function (email, password) {
 	const user = await this.findOne({ email: email });
 	if (!user) {
-		throw new Error("Unable to login");
+		throw new Error('Unable to login');
 	}
 	const isMatch = await bcrypt.compare(password, user.password);
 	if (!isMatch) {
-		throw new Error("Unable to login");
+		throw new Error('Unable to login');
 	}
 	return user;
 };
 
 //Hash the plain text password before saving to db
 // Notices: with function has to be bound with object current context no use of arrow function
-userSchema.pre("save", async function (next) {
+userSchema.pre('save', async function (next) {
 	const user = this;
-	if (user.isModified("password")) {
+	if (user.isModified('password')) {
 		user.password = await bcrypt.hash(user.password, 8);
 	}
 	next();
 });
 
 //Make a cascade delete all tasks associated with deleting user before this user is deleted
-userSchema.pre("remove", async function (next) {
+userSchema.pre('remove', async function (next) {
 	const user = this;
 	await Task.deleteMany({ owner: user._id });
 	next();
 });
 
-const User = new mongoose.model("User", userSchema);
+const User = new mongoose.model('User', userSchema);
 
 module.exports = User;
