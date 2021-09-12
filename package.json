@@ -6,7 +6,7 @@
 	"scripts": {
 		"start": "node src/index.js",
 		"dev": "ENV=dev nodemon src/index.js -e js,hbs",
-		"test": "ENV=test jest --watch --detectOpenHandles",
+		"test": "ENV=test jest --watch --detectOpenHandles --runInBand",
 		"format": "prettier --write ."
 	},
 	"jest": {

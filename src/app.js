@@ -1,5 +1,5 @@
 //Setup express application
-require('dotenv').config({ path: `./config/${process.env.ENV}.env` }) //load .env to environment variables
+require('dotenv').config({ path: `./config/${process.env.ENV}.env` }); //load .env to environment variables
 require('./db/mongoose.js'); //establish connect with mongodb
 const fs = require('fs');
 
