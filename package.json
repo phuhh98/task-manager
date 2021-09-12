@@ -4,9 +4,13 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
 		"start": "node src/index.js",
-		"dev": "nodemon src/index.js -e js,hbs"
+		"dev": "ENV=dev nodemon src/index.js -e js,hbs",
+		"test": "ENV=test jest --watch --detectOpenHandles",
+		"format": "prettier --write ."
+	},
+	"jest": {
+		"testEnvironment": "node"
 	},
 	"author": "",
 	"license": "ISC",
@@ -28,6 +32,9 @@
 		"validator": "^13.6.0"
 	},
 	"devDependencies": {
-		"nodemon": "^2.0.12"
+		"jest": "^27.1.1",
+		"nodemon": "^2.0.12",
+		"prettier": "2.4.0",
+		"supertest": "^6.1.6"
 	}
 }
